@@ -3871,6 +3871,7 @@ Solution
 <ol start="2" type="i">
 <li>Task 2: To be able to assess the accuracy of the Sahm rule, we want to revert the recession column back to being a “when does a recession start and end?” column, which means after we hit <code>FALSE</code> in the recession column, we need to set every <code>FALSE</code> after that to <code>NA</code> until we hit a <code>TRUE</code>. Same goes for <code>FALSE</code> values.</li>
 </ol>
+<!-- -->
 <ol start="10" type="1">
 <li>Using the same function you used to create the recession column in the first place, can you now modify that same recession column to achieve the result we want in Step 2.</li>
 </ol>
@@ -4068,7 +4069,7 @@ Solution
 </div>
 </div>
 </div>
-<p>We want to determine how “accurate” the Sahm rule is. We can do this by looking at its <strong>sensitivity</strong> (the ratio of true positives to false positives). Since the Sahm rule claims to predict the <em>early</em> stages of a recession, let’s suppose that it is a true positive when it triggers within 12 months before a recession and within 3 months after it. We can do this using another function from the <code>slider</code> package, the <code>slide_lgl()</code> function, which works exactly like the <code>slide_dbl()</code> function but looks at logical values instead:</p>
+<p>We want to determine how “accurate” the Sahm rule is. We can do this by looking at its <strong>sensitivity</strong> (the ratio of true positives to all positives). Since the Sahm rule claims to predict the <em>early</em> stages of a recession, let’s suppose that it is a true positive when it triggers within 12 months before a recession and within 3 months after it. We can do this using another function from the <code>slider</code> package, the <code>slide_lgl()</code> function, which works exactly like the <code>slide_dbl()</code> function but looks at logical values instead:</p>
 <div class="callout callout-style-default callout-note callout-titled" title="`slide_lgl()` Function">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

@@ -15,7 +15,8 @@ page-layout: full
 toc: true # enables the table of contents
 number-sections: true # enables section numbering for headers
 ---
-``` {r include=FALSE}
+
+```{r include=FALSE}
 # setup for QMD
 library(tidyverse)
 library(slider)
@@ -23,7 +24,7 @@ library(slider)
 
 # Introduction
 
-## About the Sahm Rule
+## About the Sahm Rule {#about-the-sahm-rule}
 
 The Sahm rule, developed by economist and Denison alumna [Claudia Sahm](https://en.wikipedia.org/wiki/Claudia_Sahm), is a reliable economic indicator signally the start of a recession in use by the Federal Reserve.
 
@@ -33,8 +34,8 @@ When the three-month moving average of the national unemployment rate is 0.5 per
 
 Some useful definitions:
 
-1. A practical definition of recession is two consecutive quarters of decline in a country's inflation-adjusted gross domestic product (GDP). An economy will stay in recession until it experiences two consecutive quarters of GDP growth, at which point it will move to a state of growth until two consecutive quarters of GDP decline, and so on and so forth.
-2. For any given month $k$, the **3-month moving average rate of unemployment** is the average unemployment rate of that month and the two previous months: $$\text{MA}(k, 3) = \frac{k + (k - 1) + (k - 2)}{3}$$.
+1.  A practical definition of recession is two consecutive quarters of decline in a country's inflation-adjusted gross domestic product (GDP). An economy will stay in recession until it experiences two consecutive quarters of GDP growth, at which point it will move to a state of growth until two consecutive quarters of GDP decline, and so on and so forth.
+2.  For any given month $k$, the **3-month moving average rate of unemployment** is the average unemployment rate of that month and the two previous months: $$\text{MA}(k, 3) = \frac{k + (k - 1) + (k - 2)}{3}$$.
 
 ## About the Project
 
@@ -47,28 +48,29 @@ We are going to use data from the Federal Reserve Economic Data (FRED). [FRED](h
 Specifically, our data is going to include quarterly GDP data and monthly unemployment data since January, 1948.
 
 # Doing the Project
+
 ## Setup
 
-* Create an R-script, RMarkdown, or Quarto Markdown file.
+-   Create an R-script, RMarkdown, or Quarto Markdown file.
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 As a best-practice, keep all of your files related to a project in one folder. This should include your script (.r, .qmd, etc.), your dataset, and other files (e.g. this instruction file, your knitted HTML, etc.)
 :::
 
-* Import your libraries (and, if using RMarkdown or Quarto Markdown, write your boilerplate).
+-   Import your libraries (and, if using RMarkdown or Quarto Markdown, write your boilerplate).
 
-:::{.callout-tip}
+::: callout-tip
 Using `ggplot2` and `tidyverse` is recommended for this project.
 :::
 
-* Download and import the dataset on the national unemployment rate as well as GDP from FRED [here](https://fred.stlouisfed.org/graph/?g=33N6). This will download your data in a .zip file, which you will have to unzip and move to your project folder (or wherever your working directory is).
+-   Download and import the dataset on the national unemployment rate as well as GDP from FRED [here](https://fred.stlouisfed.org/graph/?g=33N6). This will download your data in a .zip file, which you will have to unzip and move to your project folder (or wherever your working directory is).
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 Use the `read.csv()` function.
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-``` {r}
+::: {.callout-warning title="Solution" collapse="TRUE"}
+```{r}
 unemployment <- read.csv('monthly.csv')
 GDP <- read.csv('quarterly.csv')
 ```
@@ -76,13 +78,13 @@ GDP <- read.csv('quarterly.csv')
 
 ## Data Exploration
 
-1. Try to do some exploratory analysis on the datasets What types of variables do you have? What is a single unit of your variable? What can you say about the distribution of your variables? Try using some functions to do your analysis instead of looking directly at the data.
+1.  Try to do some exploratory analysis on the datasets What types of variables do you have? What is a single unit of your variable? What can you say about the distribution of your variables? Try using some functions to do your analysis instead of looking directly at the data.
 
-::: {.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 You can use `summary()` and `hist()` to explore your data. Be careful about what their inputs should be.
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 # histograms of GDP and unemployment
 hist(GDP$GDPC1_PC1)
@@ -94,21 +96,23 @@ summary(unemployment)
 ```
 :::
 
-3. We need to merge our two datasets into one in order to do some analysis. What are two problems in our dataframes to this end?
+3.  We need to merge our two datasets into one in order to do some analysis. What are two problems in our dataframes to this end?
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 Our two datasets are of different sizes. The `GDP` dataset has quarterly data but the `unemployment` dataset has monthly data.
 
 Moreover, the "observation-date" in both datasets are character variables and not date variables.
 :::
 
 ## Data Cleaning
+
 ### Refactoring & Merging
+
 Our first step is to refactor our dates.
 
-4. Use the `as.Date()` function to refactor that "observation-date" variable in both dataframes. Recall that you can do this by doing `dataframe$variable <- as.Date(df$variable)`.
+4.  Use the `as.Date()` function to refactor that "observation-date" variable in both dataframes. Recall that you can do this by doing `dataframe$variable <- as.Date(df$variable)`.
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 GDP$observation_date <- as.Date(GDP$observation_date)
 unemployment$observation_date <- as.Date(unemployment$observation_date)
@@ -117,9 +121,9 @@ unemployment$observation_date <- as.Date(unemployment$observation_date)
 
 Our second step is to merge our datasets into one. When we merge datasets, we identify a column that they both share (i.e. the columns in both datasets that have the same name and the same types of values) and merge by that column. This is an identifying column whose values are unique for each row; think about what column would be.
 
-5. Merge the two dataframes you have into 1. Recall the base-R function for merging: `merge(dataframe_1, dataframe_2, by = "column_name")` and that you can include the specification `all.x = TRUE` to specify that you would like to keep un-merged values from the first dataframe used in the function (this will be useful if one of your dataframes is bigger, e.g. has more granular time data, than the other).
+5.  Merge the two dataframes you have into 1. Recall the base-R function for merging: `merge(dataframe_1, dataframe_2, by = "column_name")` and that you can include the specification `all.x = TRUE` to specify that you would like to keep un-merged values from the first dataframe used in the function (this will be useful if one of your dataframes is bigger, e.g. has more granular time data, than the other).
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- merge(unemployment, GDP, by = "observation_date", all.x = TRUE)
 ```
@@ -131,7 +135,7 @@ We will now create two columns, one for the three-month moving average of the un
 
 For our third step, let's create the moving average first. To do this, you will need to install and load the `slider` package. Then, you will use the `slide_dbl()` function. This function takes in a list of values and uses a rolling window to output another list of values based on the specification (e.g. mean, min, max, etc.):
 
-:::{.callout-note title="`slide_dbl()` Function"}
+::: {.callout-note title="`slide_dbl()` Function"}
 ```{r eval=FALSE}
 slide_dbl(
   x, # this is our list of values
@@ -142,10 +146,11 @@ slide_dbl(
 )
 ```
 
-* About the `.before` and `.after` parameters: When you take a rolling average, you have to decide how to align your average. If you want to take a 3-sample after of a value alongside two of the values to its right, the rolling 3-month average for month $k$ will be $\frac{(k + (k + 1) + (k + 2))}{3}$. This is what the `.before` and `.after` parameters are for: they let you choose how many values to the left and to the right of the current value to be used in the computation.
-* About the `fill` parameter: After you choose your window, there will be values that are not able to have a rolling average. For example, if you have a window that looks at a value and two other values to its right, then the last entry in your dataset will not have a rolling average because there are no values after it to take the average of. This is what the `.complete` parameter is for: if you set it to `FALSE` (the default value), then it will just take the average without the missing values; if you set it to `TRUE`, then it will leave the value blank.
+-   About the `.before` and `.after` parameters: When you take a rolling average, you have to decide how to align your average. If you want to take a 3-sample after of a value alongside two of the values to its right, the rolling 3-month average for month $k$ will be $\frac{(k + (k + 1) + (k + 2))}{3}$. This is what the `.before` and `.after` parameters are for: they let you choose how many values to the left and to the right of the current value to be used in the computation.
+-   About the `fill` parameter: After you choose your window, there will be values that are not able to have a rolling average. For example, if you have a window that looks at a value and two other values to its right, then the last entry in your dataset will not have a rolling average because there are no values after it to take the average of. This is what the `.complete` parameter is for: if you set it to `FALSE` (the default value), then it will just take the average without the missing values; if you set it to `TRUE`, then it will leave the value blank.
 
 An example:
+
 ```{r}
 slide_dbl(
   c(1, 2, 3, 4, 5),
@@ -161,11 +166,12 @@ This is the result we should expect: We're taking a window of 3 values and the r
 
 Now let's actually create the moving average column.
 
-6. Use the `slide_dbl()` function in combination with the `mutate()` function to create a new column to calculate the rolling average for each month. Note that we've already been given the alignment for the 3-month rolling average calculation in the [introduction](#about-the-sahm-rule).
+6.  Use the `slide_dbl()` function in combination with the `mutate()` function to create a new column to calculate the rolling average for each month. Note that we've already been given the alignment for the 3-month rolling average calculation in the [introduction](#about-the-sahm-rule).
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 You can use the `slide_dbl()` function in combination with the `mutate()` function like so:
-``` {r eval=FALSE}
+
+```{r eval=FALSE}
 mutate(
   dataframe,
   rolling_average = slide_dbl()
@@ -173,7 +179,7 @@ mutate(
 ```
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- data %>% # update the dataset
   mutate( # by creating a new column
@@ -191,17 +197,16 @@ For our fourth step, let's create the recession indicator column. Recall the def
 
 Our process is as follows:
 
-a. Create a column to indicate whether a recession has started or ended.
-b. Resolve some issues that arise with our column.
+a.  Create a column to indicate whether a recession has started or ended.
+b.  Resolve some issues that arise with our column.
 
 ### Cross-Row Comparisons & Non-Binary Factoring
 
 For task a, there are two hurdles we need to overcome:
 
-i. Our first hurdle is that we require cross-row comparisons within a single column. To do this, we can use the `lag()` function:
+i.  Our first hurdle is that we require cross-row comparisons within a single column. To do this, we can use the `lag()` function:
 
-:::{.callout-note title="`lag()` Function"}
-
+::: {.callout-note title="`lag()` Function"}
 ```{r eval=FALSE}
 lag(
   x, # this is the variable that we're using to lag
@@ -210,9 +215,10 @@ lag(
 )
 ```
 
-* About the `default` parameter: When you lag by $n$, you are looking to the left of a value by $n$ places. However, the first few values you look at won't have any values when you look to $n$ places to the left of them, so `default` defines what values you should use as a placeholder.
+-   About the `default` parameter: When you lag by $n$, you are looking to the left of a value by $n$ places. However, the first few values you look at won't have any values when you look to $n$ places to the left of them, so `default` defines what values you should use as a placeholder.
 
 An example:
+
 ```{r}
 lag(
   c(1, 2, 3, 4, 5),
@@ -226,8 +232,7 @@ This makes sense because when we're looking 2 positions to the left of 3, 4, and
 
 ii. For our second hurdle, we want to distinguish between when a recession starts, when a recession ends, and when there is simply a continuation of the economy being in or out of a recession. When this is the case, we need to be able to generate **cases** in our variable, i.e. that our variable should show `TRUE` when we enter a recession, `FALSE` when we exit, and be `NA` otherwise. To do this, we can use the `case_when()` function:
 
-
-:::{.callout-note title="`case_when()` Function"}
+::: {.callout-note title="`case_when()` Function"}
 ```{r eval=FALSE}
 case_when(
   x, # list of values
@@ -238,7 +243,7 @@ case_when(
 )
 ```
 
-A note on the `TRUE ~ "default_label" specification: If you want the values that don't fall under any condition to remain the same, specify `TRUE ~ column`.
+A note on the `TRUE ~ "default_label" specification: If you want the values that don't fall under any condition to remain the same, specify`TRUE \~ column\`.
 
 Consider this example:
 
@@ -253,15 +258,15 @@ data.frame(number = 1:5) %>% mutate(
 ```
 
 This makes sense because 1 and 2 are smaller than 3, while 4 and 5 are greater than 3, and the number 3 is kept the same.
-
 :::
 
 Now let's actually create the new column by putting it all together.
 
-7. Use the `lag()` and `case_when()` functions in combination with the `mutate()` function to create a new trinary column that indicates whether the current quarter's GDP is less than the last quarter's GDP. Note that each quarter is 3 months apart.
+7.  Use the `lag()` and `case_when()` functions in combination with the `mutate()` function to create a new trinary column that indicates whether the current quarter's GDP is less than the last quarter's GDP. Note that each quarter is 3 months apart.
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 You can use the `lag()` and `case_when()` functions in combination with the `mutate()` function like so:
+
 ```{r eval=FALSE}
 # you can replace ? with ==, !=, >, <, etc., whichever you see fit.
 
@@ -276,7 +281,7 @@ mutate(
 ```
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- data %>%
   mutate(
@@ -292,18 +297,17 @@ data <- data %>%
 
 ### Troubleshooting: Filling and Removal
 
-8. For task b, try to look at the column you just created and compare with the definition of a recession. Do you see any problems?
+8.  For task b, try to look at the column you just created and compare with the definition of a recession. Do you see any problems?
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 Our recession definition variable should be a **state-process**, i.e. that it flips between `TRUE` (entering a recession) and `FALSE` (exiting a recession). However, in our column, there are cases of two or more `TRUE`s or `FALSE`s in a row, which makes sense because there could be three or more quarters in a row of GDP decline or growth. Moreover, there is the problem of two quarters of decline, followed by a quarter of growth, followed by another two quarters of decline, which would also "restart" the recession.
 :::
 
 Here is the conceptual basis for solving this problem, and the tasks involved:
 
-i. Task 1: Once we enter a recession, it doesn't matter anymore whether we have another instance of two or more consecutive quarters of GDP decline; this also goes for periods of economic growth. As such, we can temporarily treat the recession column as a "status" column that indicates whether we are *in our out of* a recession, not just when a recession starts or end. To achieve this, we need to fill all `NA`s after `TRUE` with `TRUE` until we hit a `FALSE`, and vice versa; we can use the `fill()` function to do this.
+i.  Task 1: Once we enter a recession, it doesn't matter anymore whether we have another instance of two or more consecutive quarters of GDP decline; this also goes for periods of economic growth. As such, we can temporarily treat the recession column as a "status" column that indicates whether we are *in our out of* a recession, not just when a recession starts or end. To achieve this, we need to fill all `NA`s after `TRUE` with `TRUE` until we hit a `FALSE`, and vice versa; we can use the `fill()` function to do this.
 
-:::{.callout-note title="`fill()` Function"}
-
+::: {.callout-note title="`fill()` Function"}
 ```{r eval=FALSE}
 fill(
   dataframe,
@@ -315,30 +319,29 @@ fill(
 About the `.direction` parameter: when you fill missing values in a column, you need to decide how to fill it. Suppose you want a row to **propagate downwards** (this means taking the value in that row and filling every empty row below it with the exact same value), then you specify `.direction = "down"`. Similarly, if you want a row to **propagate upwards**, you specify `.direction = "up`.
 :::
 
-9. Use the `fill()` function to fill in the `NA`s in your recession column.
+9.  Use the `fill()` function to fill in the `NA`s in your recession column.
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 Conceptually, a recession continues after it starts (`TRUE` value appears in the column) and disappears after it ends (`FALSE` value appears in the column). How does this relate to your specification of propagation direction?
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- fill(data, recession, .direction = "down")
 ```
-
 :::
 
 ii. Task 2: To be able to assess the accuracy of the Sahm rule, we want to revert the recession column back to being a "when does a recession start and end?" column, which means after we hit `FALSE` in the recession column, we need to set every `FALSE` after that to `NA` until we hit a `TRUE`. Same goes for `FALSE` values.
 
+<!-- -->
+
 10. Using the same function you used to create the recession column in the first place, can you now modify that same recession column to achieve the result we want in Step 2.
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 Use the `case_when()` function with the `mutate()` function! Hint: pay attention to the `lag()` step as well as the `NA ~` specification!
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- data %>%
   mutate(
@@ -348,15 +351,13 @@ data <- data %>%
     )
   )
 ```
-
 :::
-
 
 For our fifth step, let's create our indicator variable for the Sahm rule. Recall in the [introduction](#about-the-sahm-rule) that we are interested in months where the 3-month moving average of unemployment is at a 12-month low. Previously, we used `lag()` in combination with logic indicators to check whether GDP has grown or shrunk, and to check whether there has been two consecutive quarters of GDP growth or decline. However, we don't want to use this 12 times to create our indicator. Instead, we will use the `slide_dbl()` function again but this time with the `min` specification.
 
 11. Use the `slide_dbl()` function with the `mutate()` function to create another column that indicates when the Sahm rule is triggered.
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 Here's how you use a conditional with the `slide_dbl()` function:
 
 ```{r eval=FALSE}
@@ -365,10 +366,9 @@ mutate(
   new_column = referenced_column == slide_dbl(referenced_column)
 )
 ```
-
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- data %>% mutate(
   sahm = three_month_MA_UNRATE > slide_dbl(
@@ -384,8 +384,7 @@ We will need to modify our Sahm rule variable to only indicate when it triggers 
 
 11. Use a similar technique in Task 2 of your treatment of the recession variable, modify the Sahm rule column to become our desired format.
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- data %>%
   mutate(
@@ -396,22 +395,21 @@ data <- data %>%
     )
   )
 ```
-
 :::
 
 That was a lot of data cleaning. In fact, a lot of data analysis is just cleaning data.
 
 ## Data Analysis
 
-Let's first motivate our analytical testing of the Sahm rule by visualizing it. Whenever you make a plot with time on the $x$-axis, you are making a **time-series plot**. 
+Let's first motivate our analytical testing of the Sahm rule by visualizing it. Whenever you make a plot with time on the $x$-axis, you are making a **time-series plot**.
 
 12. Using `ggplot()` and `geom_line()`, make a time-series plot of GDP and unemployment over time. Here are a few things to keep in mind:
 
-* In your dataset, GDP is quarterly data and unemployment is monthly data, so you will need to filter your dataset to drop the months that are missing GDP data.
-* The scales of GDP and unemployment are different. You can wrap the `scale()` around a variable when you set up the aesthetic layer of your plot.
-* You are plotting 2 variables on the $y$-axis against 1 on the $x$-axis. You can do this by only setting the $x$ axis in the `ggplot` and using two `geom_line()` functions with their own aesthetic layer to map GDP and unemployment individually.
+-   In your dataset, GDP is quarterly data and unemployment is monthly data, so you will need to filter your dataset to drop the months that are missing GDP data.
+-   The scales of GDP and unemployment are different. You can wrap the `scale()` around a variable when you set up the aesthetic layer of your plot.
+-   You are plotting 2 variables on the $y$-axis against 1 on the $x$-axis. You can do this by only setting the $x$ axis in the `ggplot` and using two `geom_line()` functions with their own aesthetic layer to map GDP and unemployment individually.
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 Here's the general structure of what the solution would look like:
 
 ```{r eval=FALSE}
@@ -420,11 +418,9 @@ filter(data, !is.na(GDP)) %>%
   geom_line(aes(y = scale(GDP))) +
   geom_line(aes(y = scale(unemploymnet)))
 ```
-
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 filter(data, !is.na(GDPC1_PC1)) %>%
   ggplot(aes(x = observation_date)) +
@@ -440,10 +436,9 @@ filter(data, !is.na(GDPC1_PC1)) %>%
 ```
 :::
 
-We want to determine how "accurate" the Sahm rule is. We can do this by looking at its **sensitivity** (the ratio of true positives to false positives). Since the Sahm rule claims to predict the *early* stages of a recession, let's suppose that it is a true positive when it triggers within 12 months before a recession and within 3 months after it. We can do this using another function from the `slider` package, the `slide_lgl()` function, which works exactly like the `slide_dbl()` function but looks at logical values instead:
+We want to determine how "accurate" the Sahm rule is. We can do this by looking at its **sensitivity** (the ratio of true positives to all positives). Since the Sahm rule claims to predict the *early* stages of a recession, let's suppose that it is a true positive when it triggers within 12 months before a recession and within 3 months after it. We can do this using another function from the `slider` package, the `slide_lgl()` function, which works exactly like the `slide_dbl()` function but looks at logical values instead:
 
-:::{.callout-note title="`slide_lgl()` Function"}
-
+::: {.callout-note title="`slide_lgl()` Function"}
 ```{r eval=FALSE}
 slide_lgl(
   x, # this is our list of values
@@ -455,29 +450,27 @@ slide_lgl(
 ```
 
 About the `.f` parameter: you can use a lot of functions to check logic. For checking whether any `TRUE` values exist in the window, set `.f = any` or just write `any`. For checking whether any `FALSE` values exist in the window, set `.f = ~ any(.x == FALSE)` or just write `~ any(x. == FALSE)`. Think about what it means to check whether there are *no* true values or no false values in a window.
-
 :::
 
 13. Using the `slide_lgl()` function along with logic indicators, how would you create a column to check the sensitivity of the Sahm rule?
 
-:::{.callout-tip collapse=TRUE}
+::: {.callout-tip collapse="TRUE"}
 The Sahm rule is accurate when:
 
-1. A recession occurs close to when the Sahm rule triggers.
-2. The Sahm rule triggers close to when a recession occurs.
+1.  A recession occurs close to when the Sahm rule triggers.
+2.  The Sahm rule triggers close to when a recession occurs.
 
 (Note that the above 2 lines are not necessarily logically equivalent.)
 
 The Sahm rule is inaccurate when:
 
-1. A recession occurs, but the Sahm rule doesn't trigger.
-2. The Sahm rule triggers, but there is no recession.
+1.  A recession occurs, but the Sahm rule doesn't trigger.
+2.  The Sahm rule triggers, but there is no recession.
 
 (Note that the above 2 lines are not necessarily logically equivalent.)
 :::
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 data <- data %>%
   mutate(
@@ -492,12 +485,11 @@ data <- data %>%
     )
   )
 ```
-
 :::
 
 Finally, we can definitively test the sensitivity of the Sahm rule. We will need to use the `sum()` function to count the total number of nonempty values as well `TRUE` values in our sensitivity column:
 
-:::{.callout-note title="`sum()` Function"}
+::: {.callout-note title="`sum()` Function"}
 You can use the `sum()` function with a dataframe like so:
 
 ```{r eval=FALSE}
@@ -508,8 +500,7 @@ sum(dataframe$column == value, na.rm=TRUE) # to count specific values in a colum
 
 14. Using `sum()`, test the sensitivity (ratio between when a test is accurate and the sum of the tests' accurate and inaccurate results) of the Sahm rule. Interpret the result.
 
-:::{.callout-warning title="Solution" collapse=TRUE}
-
+::: {.callout-warning title="Solution" collapse="TRUE"}
 ```{r}
 sum(data$sahm_sensitivity == TRUE, na.rm=TRUE) / sum(!is.na(data$sahm_sensitivity)) * 100
 ```
@@ -525,17 +516,16 @@ Here are a few discussion and reflection questions to think about as you wrap up
 16. What did you find interesting about the project? What did you find difficult?
 17. Why do you think the Sahm rule works so well? Is there a direct link between employment and economic output, or are there other confounding variables?
 
-
 # Future Work
 
 Here are some ideas for extending on this work:
 
-1. Does the Sahm rule work for other countries? How would you go about collecting data and doing the same analysis?
-2. Does the same methodology work for other economic indicators, such as the interest rate, the consumer price index, or the Dow Jones?
-3. Is there an "inverse Sahm rule" where if the 3-month moving average of unemployment is some amount lower than the 12-month high, can we accurate predict when a recession ends? Can this "inverse Sahm rule" be incorporated into our analysis?
-4. Can you test for **specificity** (the ratio of true negatives and all negatives) for the Sahm rule? 
+1.  Does the Sahm rule work for other countries? How would you go about collecting data and doing the same analysis?
+2.  Does the same methodology work for other economic indicators, such as the interest rate, the consumer price index, or the Dow Jones?
+3.  Is there an "inverse Sahm rule" where if the 3-month moving average of unemployment is some amount lower than the 12-month high, can we accurate predict when a recession ends? Can this "inverse Sahm rule" be incorporated into our analysis?
+4.  Can you test for **specificity** (the ratio of true negatives and all negatives) for the Sahm rule?
 
-:::{.callout-warning title="Solution" collapse=TRUE}
+::: {.callout-warning title="Solution" collapse="TRUE"}
 Here's how you would modify the column for the Sahm rule and the column for sensitivity as well as create the column to check for specificity of the Sahm rule:
 
 ```{r eval=FALSE}
@@ -574,4 +564,4 @@ sum(data$sahm_sensitivity == TRUE, na.rm=TRUE) / sum(!is.na(data$sahm_sensitivit
 This is a lot of code and a lot to understand conceptually! If you are reading this at all, take as much time as you need to parse through this.
 :::
 
-5. In our analysis, we restricted the definition of a recession as moving into a recession; we also restricted our Sahm indicator to flash just once. If we removed these restrictions (i.e. add dimensionality to a recession either by measuring its duration by determining when recessions end or by attributing meaning to the ratio of positive v. negative GDP change in a recession; adding dimensionality to the Sahm rule by measuring how many times it flashes), are there other interesting methods of analysis we can do?
+5.  In our analysis, we restricted the definition of a recession as moving into a recession; we also restricted our Sahm indicator to flash just once. If we removed these restrictions (i.e. add dimensionality to a recession either by measuring its duration by determining when recessions end or by attributing meaning to the ratio of positive v. negative GDP change in a recession; adding dimensionality to the Sahm rule by measuring how many times it flashes), are there other interesting methods of analysis we can do?
