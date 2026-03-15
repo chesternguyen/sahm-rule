@@ -35,7 +35,7 @@ When the three-month moving average of the national unemployment rate is 0.5 per
 Some useful definitions:
 
 1.  A practical definition of recession is two consecutive quarters of decline in a country's inflation-adjusted gross domestic product (GDP). An economy will stay in recession until it experiences two consecutive quarters of GDP growth, at which point it will move to a state of growth until two consecutive quarters of GDP decline, and so on and so forth.
-2.  For any given month $k$, the **3-month moving average rate of unemployment** is the average unemployment rate of that month and the two previous months: $$\text{MA}(k, 3) = \frac{k + (k - 1) + (k - 2)}{3}$$.
+2.  For any given month $k$, the **3-month moving average rate of unemployment** is the average unemployment rate of that month $U_k$ and the two previous months: $$\text{MA}(U_k, 3) = \frac{U_k + U_{(k - 1)} + U_{(k - 2)}}{3}$$.
 
 ## About the Project
 
@@ -436,7 +436,7 @@ filter(data, !is.na(GDPC1_PC1)) %>%
 ```
 :::
 
-We want to determine how "accurate" the Sahm rule is. We can do this by looking at its **sensitivity** (the ratio of true positives to all positives). Since the Sahm rule claims to predict the *early* stages of a recession, let's suppose that it is a true positive when it triggers within 12 months before a recession and within 3 months after it. We can do this using another function from the `slider` package, the `slide_lgl()` function, which works exactly like the `slide_dbl()` function but looks at logical values instead:
+We want to determine how "accurate" the Sahm rule is. We can do this by looking at its **sensitivity** (the ratio of true positives to all positives). Since the Sahm rule claims to predict the *early* stages of a recession and not to *predict* a recession, let's suppose that it is a true positive when it triggers within 3 months before a recession and within 12 months after it. We can do this using another function from the `slider` package, the `slide_lgl()` function, which works exactly like the `slide_dbl()` function but looks at logical values instead:
 
 ::: {.callout-note title="`slide_lgl()` Function"}
 ```{r eval=FALSE}
@@ -476,11 +476,11 @@ data <- data %>%
   mutate(
     sahm_sensitivity = case_when(
       # these first two rows check whether the Sahm rule triggers close to when a recession occurs
-      recession == TRUE & slide_lgl(sahm, any, .before = 11, .after = 2, .complete = FALSE) ~ TRUE,
-      recession == TRUE & !slide_lgl(sahm, any, .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
+      recession == TRUE & slide_lgl(sahm, any, .before = 2, .after = 11, .complete = FALSE) ~ TRUE,
+      recession == TRUE & !slide_lgl(sahm, any, .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
       # these next two rows check whether a recession occurs close to when the Sahm rule triggers
-      sahm == TRUE & slide_lgl(recession, any, .before = 2, .after = 11, .complete = FALSE) ~ TRUE,
-      sahm == TRUE & !slide_lgl(recession, any, .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
+      sahm == TRUE & slide_lgl(recession, any, .before = 11, .after = 2, .complete = FALSE) ~ TRUE,
+      sahm == TRUE & !slide_lgl(recession, any, .before = 11, .after = 22, .complete = FALSE) ~ FALSE,
       TRUE ~ NA
     )
   )
@@ -538,20 +538,20 @@ data <- data %>%
     ),
     sahm_sensitivity = case_when(
       # these first three rows check whether the Sahm rule triggers close to when a recession occurs
-      recession == TRUE & slide_lgl(sahm, any, .before = 11, .after = 2, .complete = FALSE) ~ TRUE,
-      recession == TRUE & !slide_lgl(sahm, any, .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
-      recession == TRUE & slide_lgl(sahm, ~ any(.x == FALSE), .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
+      recession == TRUE & slide_lgl(sahm, any, .before = 2, .after = 11, .complete = FALSE) ~ TRUE,
+      recession == TRUE & !slide_lgl(sahm, any, .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
+      recession == TRUE & slide_lgl(sahm, ~ any(.x == FALSE), .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
       # these next three rows check whether a recession occurs close to when the Sahm rule triggers
-      sahm == TRUE & slide_lgl(recession, any, .before = 2, .after = 11, .complete = FALSE) ~ TRUE,
-      sahm == TRUE & !slide_lgl(recession, any, .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
-      sahm == TRUE & slide_lgl(recession, ~ any(.x == FALSE), .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
+      sahm == TRUE & slide_lgl(recession, any, .before = 11, .after = 2, .complete = FALSE) ~ TRUE,
+      sahm == TRUE & !slide_lgl(recession, any, .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
+      sahm == TRUE & slide_lgl(recession, ~ any(.x == FALSE), .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
       TRUE ~ NA
     ),
     sahm_specificity = case_when(
-      recession == FALSE & slide_lgl(sahm, ~ any(.x == FALSE), .before = 11, .after = 2, .complete = FALSE) ~ TRUE,
-      recession == FALSE & !slide_lgl(sahm, ~ any(.x == FALSE), .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
-      recession == FALSE & !slide_lgl(sahm, any, .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
-      sahm == FALSE & slide_lgl(recession, ~ any(.x == FALSE), .before = 2, .after = 11, .complete = FALSE) ~ TRUE,
+      recession == FALSE & slide_lgl(sahm, ~ any(.x == FALSE), .before = 2, .after = 11, .complete = FALSE) ~ TRUE,
+      recession == FALSE & !slide_lgl(sahm, ~ any(.x == FALSE), .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
+      recession == FALSE & !slide_lgl(sahm, any, .before = 2, .after = 11, .complete = FALSE) ~ FALSE,
+      sahm == FALSE & slide_lgl(recession, ~ any(.x == FALSE), .before = 11, .after = 2, .complete = FALSE) ~ TRUE,
       sahm == FALSE & !slide_lgl(recession, ~ any(.x == FALSE), .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
       sahm == FALSE & !slide_lgl(recession, any, .before = 11, .after = 2, .complete = FALSE) ~ FALSE,
       TRUE ~ NA
@@ -559,6 +559,7 @@ data <- data %>%
   )
 
 sum(data$sahm_sensitivity == TRUE, na.rm=TRUE) / sum(!is.na(data$sahm_sensitivity)) * 100
+sum(data$sahm_specificity == TRUE, na.rm=TRUE) / sum(!is.na(data$sahm_specificity)) * 100
 ```
 
 This is a lot of code and a lot to understand conceptually! If you are reading this at all, take as much time as you need to parse through this.
