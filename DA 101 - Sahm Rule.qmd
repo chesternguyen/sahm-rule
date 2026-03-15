@@ -533,9 +533,10 @@ Here are some ideas for extending on this work:
 1. Does the Sahm rule work for other countries? How would you go about collecting data and doing the same analysis?
 2. Does the same methodology work for other economic indicators, such as the interest rate, the consumer price index, or the Dow Jones?
 3. Is there an "inverse Sahm rule" where if the 3-month moving average of unemployment is some amount lower than the 12-month high, can we accurate predict when a recession ends? Can this "inverse Sahm rule" be incorporated into our analysis?
+4. Can you test for **specificity** (the ratio of true negatives and all negatives) for the Sahm rule? 
 
 :::{.callout-warning title="Solution" collapse=TRUE}
-Here's how you would modify the column for the Sahm rule and the column for sensitivity as well as create the column to check for specificity and "inverse Sahm rule":
+Here's how you would modify the column for the Sahm rule and the column for sensitivity as well as create the column to check for specificity of the Sahm rule:
 
 ```{r eval=FALSE}
 data <- data %>%
@@ -566,6 +567,8 @@ data <- data %>%
       TRUE ~ NA
     )
   )
+
+sum(data$sahm_sensitivity == TRUE, na.rm=TRUE) / sum(!is.na(data$sahm_sensitivity)) * 100
 ```
 
 This is a lot of code and a lot to understand conceptually! If you are reading this at all, take as much time as you need to parse through this.

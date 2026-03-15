@@ -4211,6 +4211,7 @@ Solution
 <li>Does the Sahm rule work for other countries? How would you go about collecting data and doing the same analysis?</li>
 <li>Does the same methodology work for other economic indicators, such as the interest rate, the consumer price index, or the Dow Jones?</li>
 <li>Is there an “inverse Sahm rule” where if the 3-month moving average of unemployment is some amount lower than the 12-month high, can we accurate predict when a recession ends? Can this “inverse Sahm rule” be incorporated into our analysis?</li>
+<li>Can you test for <strong>specificity</strong> (the ratio of true negatives and all negatives) for the Sahm rule?</li>
 </ol>
 <div class="callout callout-style-default callout-warning callout-titled" title="Solution">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-34-contents" aria-controls="callout-34" aria-expanded="true" aria-label="Toggle callout">
@@ -4224,7 +4225,7 @@ Solution
 </div>
 <div id="callout-34" class="callout-34-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p>Here’s how you would modify the column for the Sahm rule and the column for sensitivity as well as create the column to check for specificity and “inverse Sahm rule”:</p>
+<p>Here’s how you would modify the column for the Sahm rule and the column for sensitivity as well as create the column to check for specificity of the Sahm rule:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
@@ -4253,7 +4254,9 @@ Solution
 <span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>      sahm <span class="sc">==</span> <span class="cn">FALSE</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">slide_lgl</span>(recession, any, <span class="at">.before =</span> <span class="dv">11</span>, <span class="at">.after =</span> <span class="dv">2</span>, <span class="at">.complete =</span> <span class="cn">FALSE</span>) <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
 <span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA</span></span>
 <span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(data<span class="sc">$</span>sahm_sensitivity <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(data<span class="sc">$</span>sahm_sensitivity)) <span class="sc">*</span> <span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This is a lot of code and a lot to understand conceptually! If you are reading this at all, take as much time as you need to parse through this.</p>
 </div>
